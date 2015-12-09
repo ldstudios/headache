@@ -14,6 +14,11 @@ module Headache
         rval
       end
 
+      def generate(*args)
+        fail ArgumentError, 'transaction_code cannot be blank' unless transaction_code.present?
+        super(*args)
+      end
+
       def routing_identification=(value)
         rval = (@routing_identification = value)
         assemble_routing_number
