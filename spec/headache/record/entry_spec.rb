@@ -12,4 +12,9 @@ describe Headache::Record::Entry do
     expect(line).to eq("6AB5555555555555555555       0000010000ABC123         BOB SMITH               0DEF456         ")
   end
 
+  it 'raises an exception if transaction_code is empty' do
+    entry = build :entry, transaction_code: nil
+    expect { entry.generate }.to raise_error(ArgumentError)
+  end
+
 end
