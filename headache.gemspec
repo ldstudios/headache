@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
   spec.add_dependency 'fixy', '~> 0.0'
   spec.add_dependency 'activesupport', '>= 4'
+  spec.add_dependency 'activemodel', '>= 4'
   spec.add_development_dependency 'faker', '~> 1.4'
   spec.add_development_dependency 'rspec', '~> 3.3'
   spec.add_development_dependency 'factory_girl', '~> 4.5'

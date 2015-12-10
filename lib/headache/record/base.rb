@@ -1,11 +1,17 @@
 module Headache
   module Record
+    class InvalidRecordError < StandardError
+    end
+
     class Base < Fixy::Record
+      include ActiveModel::Validations
+
       def self.parse_fields_normalize(record_string)
         parse_fields(record_string).inject({}) { |m,i| m[i.first] = normalize_field_value(i.first, i.last); m }
       end
 
       def self.parse_fields(record_string)
+        puts "====> RECORD_STRING LENGTH IS #{record_string.length} ===> #{record_string.inspect}"
         parse(record_string)[:fields].inject({}) do |m,i|
           m[i[:name]] = i[:value]; m
         end
@@ -31,12 +37,18 @@ module Headache
         end
       end
 
+      def generate(*args)
+        puts "===>>> txn code: #{transaction_code.inspect}" if respond_to?(:transaction_code)
+        fail Headache::Record::InvalidRecordError, "Invalid record: #{errors.full_messages.to_sentence.downcase}" if invalid?
+        super(*args)
+      end
+
       def normalize_field_value(f, v)
         self.class.normalize_field_value(f, v)
       end
 
       def to_h
-        str = self.generate.gsub Headache::Document::LINE_SEPARATOR, ''
+        str = self.generate(false).gsub Headache::Document::LINE_SEPARATOR, ''
         self.class.parse_fields(str)
       end
 
