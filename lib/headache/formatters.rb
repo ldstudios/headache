@@ -36,7 +36,7 @@ module Headache
       if input.is_a?(String) || input.is_a?(Fixnum)
         chars   = input.to_s.chars
         minutes = chars.pop(2).join.to_i
-        hours   = chars.join.to_i
+        hours   = chars.first(2).join.to_i
         input   = Time.new 0, 1, 1, hours, minutes
       end
       fail "input #{input.inspect} does not respond to #strftime!" unless input.respond_to?(:strftime)
