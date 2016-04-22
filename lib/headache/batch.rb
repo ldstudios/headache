@@ -8,25 +8,9 @@ module Headache
                   :entry_class_code, :entry_description, :descriptive_date,
                   :total_debit, :total_credit, :entry_hash
 
-    @@record_classes = { header: Record::BatchHeader,
-                         control: Record::BatchControl }
-
-    def self.header=(klass)
-      set_class :header, klass
-    end
-
-    def self.control=(klass)
-      set_class :control, klass
-    end
-
-    def self.set_class(type, klass)
-      fail "unknown record class: #{type}" unless @@record_classes[type].present?
-      @@record_classes[type] = klass
-    end
-
     def parse(records)
-      @header  = @@record_classes[:header].new(self, @document).parse(records.shift)
-      @control = @@record_classes[:control].new(self, @document).parse(records.pop)
+      @header  = Record::BatchHeader.new(self, @document).parse(records.shift)
+      @control = Record::BatchControl.new(self, @document).parse(records.pop)
       records.each { |r| @members << Headache::Record::Entry.new(self, @document).parse(r) }
       self
     end
@@ -47,21 +31,21 @@ module Headache
     def self.type_from_service_code(code)
       return :credit if code.to_s == '220'
       return :debit  if code.to_s == '225'
-      fail "unknown service code: #{code.inspect} (expecting 220 or 225)"
+      fail Headache::UnknownServiceCode, "unknown service code: #{code.inspect} (expecting 220 or 225)"
     end
 
     def service_code
       return '220' if type == :credit
       return '225' if type == :debit
-      fail "unknown batch type: #{type.inspect} (expecting :credit or :debit)"
+      fail Headache::UnknownBatchType, "unknown batch type: #{type.inspect} (expecting :credit or :debit)"
     end
 
     def header
-      @header ||= @@record_classes[:header].new self, @document
+      @header ||= Record::BatchHeader.new self, @document
     end
 
     def control
-      @control ||= @@record_classes[:control].new self, @document
+      @control ||= Record::BatchControl.new self, @documentec
     end
 
     def entries
@@ -73,8 +57,8 @@ module Headache
     end
 
     def to_h
-      {  batch_header: @header.to_h,
-              entries: @members.to_a.map(&:to_h),
+      { batch_header: @header.to_h,
+        entries: @members.to_a.map(&:to_h),
         batch_control: @control.to_h }
     end
 
@@ -103,6 +87,5 @@ module Headache
     def total_credit
       @total_credit || entries.map(&:amount).select { |amt| (amt || 0) > 0 }.sum
     end
-
   end
 end
