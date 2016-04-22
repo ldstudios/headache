@@ -16,11 +16,11 @@ module Headache
     end
 
     def descriptive_date
-      @descriptive_date || Time.zone.today
+      @descriptive_date || Date.today
     end
 
     def effective_date
-      @effective_date || Time.zone.today
+      @effective_date || Date.today
     end
 
     def initialize(document = nil)
@@ -45,7 +45,7 @@ module Headache
     end
 
     def control
-      @control ||= Record::BatchControl.new self, @document
+      @control ||= Record::BatchControl.new self, @documentec
     end
 
     def entries
