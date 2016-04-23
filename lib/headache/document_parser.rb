@@ -19,30 +19,30 @@ module Headache
     protected
 
     def records
-      @records ||= @ach_string.split(LINE_SEPARATOR).reject { |line| line == Headache::Record::Overflow.new.generate.strip }
+      @records ||= @ach_string.split(LINE_SEPARATOR).reject { |record| record == Headache::Record::Overflow.new.generate.strip }
     end
 
     def invalid_fail_message
-      "unknown record type(s): #{invalid_lines.map(&:first).inspect}"
+      "unknown record type(s): #{invalid_records.map(&:first).inspect}"
     end
 
     def invalid_ach?
-      invalid_lines.any?
+      invalid_records.any?
     end
 
-    def invalid_lines
-      @invalid_lines ||= records.reject { |line| Headache::Record::FileHeader.record_type_codes.values.include?(line.first.to_i) }
+    def invalid_records
+      @invalid_records ||= records.reject { |record| Headache::Record::FileHeader.record_type_codes.values.include?(record.first.to_i) }
     end
 
     def get_batches
       batches = []
       batch   = []
-      records.each do |line|
-        if line.starts_with?(Headache::Record::BatchHeader.record_type_codes[:batch_header].to_s)
+      records.each do |record|
+        if record.starts_with?(Headache::Record::BatchHeader.record_type_codes[:batch_header].to_s)
           batches << batch unless batches.empty? && batch == []
-          batch = [line]
+          batch = [record]
         else
-          batch << line
+          batch << record
         end
       end
       batches << batch
