@@ -2,43 +2,7 @@ module Headache
   class Document < Fixy::Document
     attr_reader :batches
 
-    LINE_SEPARATOR = "\r\n".freeze
-
     delegate :add_entry, :'<<', to: :first_batch
-
-    class << self
-      def extract_lines(string_or_file)
-        string = string_or_file.respond_to?(:read) ? string_or_file.read : string_or_file
-        string.split(LINE_SEPARATOR).reject { |line| line == Headache::Record::Overflow.new.generate.strip }
-      end
-
-      def cleanse_records(records)
-        invalid_lines = records.reject { |line| Headache::Record::FileHeader.record_type_codes.values.include?(line.first.to_i) }
-        fail Headache::InvalidRecordType, "uknown record type(s): #{invalid_lines.map(&:first).inspect}" if invalid_lines.any?
-        records
-      end
-
-      def parse(string_or_file)
-        records = cleanse_records(extract_lines(string_or_file))
-        new Record::FileHeader.new(nil).parse(records.shift),
-            Record::FileControl.new(nil).parse(records.pop),
-            get_batches(records).map { |b| Headache::Batch.new(self).parse(b) }
-      end
-
-      def get_batches(records)
-        batches = []
-        batch   = []
-        records.each do |line|
-          if line.starts_with?(Headache::Record::BatchHeader.record_type_codes[:batch_header].to_s)
-            batches << batch unless batches.empty? && batch == []
-            batch = [line]
-          else
-            batch << line
-          end
-        end
-        batches << batch
-      end
-    end
 
     def initialize(header = nil, control = nil, batches = [])
       @header  = header
