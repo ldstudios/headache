@@ -20,4 +20,44 @@ describe Headache::Document do
       end
     end
   end
+
+  describe "#first_batch" do
+    it "gets the first batch" do
+      doc = Headache::DocumentParser.new(ach_file).parse
+      expect(doc.first_batch).to eq(doc.batches.first)
+    end
+  end
+
+  describe "#batch" do
+    let(:doc) { Headache::DocumentParser.new(ach_file).parse }
+
+    context "when there are multiple batches" do
+      it "raises an exception" do
+        expect{doc.batch}.to raise_error(Headache::AmbiguousBatch)
+      end
+    end
+
+    context "when there's a single batch" do
+      it "returns the first batch" do
+        allow(doc.batches).to receive(:count).and_return(1)
+        expect(doc).to receive(:first_batch)
+        doc.batch
+      end
+    end
+  end
+
+  describe "#<<" do
+    it "adds the batch" do
+      batch = double('batch').as_null_object
+      doc = Headache::DocumentParser.new(ach_file).parse
+      expect(doc).to receive(:add_batch).with(batch)
+      doc << batch
+    end
+
+    it "returns self" do
+      batch = double('batch').as_null_object
+      doc = Headache::DocumentParser.new(ach_file).parse
+      expect(doc << batch).to eq(doc)
+    end
+  end
 end
