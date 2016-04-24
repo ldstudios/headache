@@ -13,9 +13,23 @@ describe Headache::DocumentParser do
   }
 
   describe "#parse" do
-    it 'can be dumped to a hash' do
-      doc = described_class.new(ach_file).parse
-      expect(doc.to_h.with_indifferent_access).to eq(ach_hash.with_indifferent_access)
+    let(:doc) { Headache::DocumentParser.new(ach_file) }
+
+    context "when there are invalid records" do
+      it "raises an InvalidRecordType error" do
+        allow(doc).to receive(:invalid_ach?).and_return(true)
+        expect{doc.parse}
+        .to raise_error(
+          Headache::InvalidRecordType,
+          /unknown record type\(s\)/
+        )
+      end
+    end
+
+    context "when there are no invalid records" do
+      it 'can be dumped to a hash' do
+        expect(doc.parse.to_h.with_indifferent_access).to eq(ach_hash.with_indifferent_access)
+      end
     end
   end
 end
