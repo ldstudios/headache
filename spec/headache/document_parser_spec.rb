@@ -8,10 +8,6 @@ describe Headache::DocumentParser do
     .gsub("\n", Headache::DocumentParser::LINE_SEPARATOR)
   }
 
-  let(:ach_hash) {
-    JSON.parse(File.open('spec/fixtures/ach.json').read)
-  }
-
   describe "#parse" do
     let(:doc) { Headache::DocumentParser.new(ach_file) }
 
@@ -27,8 +23,8 @@ describe Headache::DocumentParser do
     end
 
     context "when there are no invalid records" do
-      it 'can be dumped to a hash' do
-        expect(doc.parse.to_h.with_indifferent_access).to eq(ach_hash.with_indifferent_access)
+      it "returns a new Headache Document" do
+        expect(doc.parse.class).to eq(Headache::Document)
       end
     end
   end

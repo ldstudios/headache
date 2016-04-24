@@ -60,4 +60,13 @@ describe Headache::Document do
       expect(doc << batch).to eq(doc)
     end
   end
+
+  describe "#to_h" do
+    let(:doc) { Headache::DocumentParser.new(ach_file) }
+    let(:ach_hash) { JSON.parse(File.open('spec/fixtures/ach.json').read) }
+
+    it 'can be dumped to a hash' do
+      expect(doc.parse.to_h.with_indifferent_access).to eq(ach_hash.with_indifferent_access)
+    end
+  end
 end
