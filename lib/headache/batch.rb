@@ -63,7 +63,7 @@ module Headache
     end
 
     def entry_hash
-      @entry_hash || entries.map(&:routing_identification).map(&:to_i).sum
+      @entry_hash || entries.map(&:routing_identification).map(&:to_i).sum.to_s.last(10)
     end
 
     def add_entry(entry)
