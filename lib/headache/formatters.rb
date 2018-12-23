@@ -33,7 +33,7 @@ module Headache
     end
 
     def format_time(input, _length)
-      if input.is_a?(String) || input.is_a?(Fixnum)
+      if input.is_a?(String) || input.is_a?(Integer)
         chars   = input.to_s.chars
         minutes = chars.pop(2).join.to_i
         hours   = chars.first(2).join.to_i
