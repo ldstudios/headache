@@ -7,8 +7,8 @@ describe Headache::Batch do
     subject << create(:entry)
     expect { subject << create(:another_entry) }
       .to change { subject.entry_hash }
-      .from(55555555)
-      .to(66666666)
+      .from('55555555')
+      .to('66666666')
   end
 
 end
